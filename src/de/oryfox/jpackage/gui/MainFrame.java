@@ -29,15 +29,22 @@ public class MainFrame extends JFrame {
     JButton iconButton;
     File iconFile;
 
+    JPanel exePanel;
+    JButton exeButton;
+    File exeFile;
+
     JPanel copyrightPanel;
     JTextField copyrightField;
 
     JPanel imagePanel;
     JComboBox<String> imageBox;
 
-    String[] WINDOWS_IMAGES = new String[]{"EXE,MSI"};
-    String[] MAC_IMAGES = new String[]{"DMG,PKG"};
-    String[] LINUX_IMAGES = new String[]{"DEB,RPM"};
+    JPanel mainClassPanel;
+    JTextField mainClassField;
+
+    String[] WINDOWS_IMAGES = new String[]{"EXE", "MSI"};
+    String[] MAC_IMAGES = new String[]{"DMG", "PKG"};
+    String[] LINUX_IMAGES = new String[]{"DEB", "RPM"};
 
     public MainFrame() {
         super("JPackage(r)");
@@ -67,6 +74,7 @@ public class MainFrame extends JFrame {
         iconButton = new JButton("Select icon");
         iconButton.addActionListener(e -> {
             FileDialog fileDialog = new FileDialog((Frame)null, "Select icon", FileDialog.LOAD);
+            fileDialog.setDirectory(JPackageF.file.getParent());
             fileDialog.setVisible(true);
             iconFile = fileDialog.getFiles()[0];
 
@@ -93,6 +101,18 @@ public class MainFrame extends JFrame {
         iconPanel.setBorder(BorderFactory.createTitledBorder("Icon"));
         contentPanel.add(iconPanel);
 
+        exePanel = new JPanel();
+        exeButton = new JButton("Select jpackage executable");
+        exeButton.addActionListener(e -> {
+            FileDialog fileDialog = new FileDialog((Frame)null, "Select jpackage executable", FileDialog.LOAD);
+            fileDialog.setDirectory(System.getProperty("user.home"));
+            fileDialog.setVisible(true);
+            exeFile = fileDialog.getFiles()[0];
+        });
+        exePanel.add(exeButton);
+        exePanel.setBorder(BorderFactory.createTitledBorder("jpackage executable"));
+        contentPanel.add(exePanel);
+
         copyrightPanel = new JPanel(new BorderLayout());
         copyrightField = new JTextField();
         copyrightPanel.add(copyrightField, BorderLayout.CENTER);
@@ -107,6 +127,13 @@ public class MainFrame extends JFrame {
         } else {
             imageBox = new JComboBox<>(LINUX_IMAGES);
         }
+        contentPanel.add(imageBox);
+
+        mainClassPanel = new JPanel(new BorderLayout());
+        mainClassField = new JTextField();
+        mainClassPanel.add(mainClassField, BorderLayout.CENTER);
+        mainClassPanel.setBorder(BorderFactory.createTitledBorder("Main Class"));
+        contentPanel.add(mainClassPanel);
 
         var saveButton = new JButton("Save App");
         saveButton.addActionListener(e -> JPackageF.writeApp());
