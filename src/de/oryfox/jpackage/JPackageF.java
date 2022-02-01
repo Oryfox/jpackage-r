@@ -5,6 +5,7 @@ import de.oryfox.jpackage.gui.MainFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +43,18 @@ public class JPackageF {
     }
 
     public static void writeApp() {
-        var processBuilder = new ProcessBuilder("\"" + frame.getExeFile().getAbsolutePath() + "\"", "--input", "\"" + file.getParent() + "\"", "--name", "\"" + frame.getNameField().getText() + "\"", "--type", (String) frame.getImageBox().getSelectedItem(), "--app-version", "\"" + frame.getVersionField().getText() + "\"", "--copyright", "\"" + frame.getCopyrightField().getText() + "\"", "--vendor", "\"" + frame.getVendorField().getText() + "\"" + (frame.getIconBox().isSelected() ? " --icon " + "\"" + frame.getIconFile().getAbsolutePath() + "\"" : ""), "--main-jar", "\"" + file.getAbsolutePath() + "\"", "--main-class", "\"" + frame.getMainClassField().getText() + "\"", (System.getProperty("os.name").toLowerCase().contains("win") ? "--win-menu" : ""));
-        processBuilder.command().forEach(s -> System.out.print(s + " "));
+        var mac = System.getProperty("os.name").toLowerCase().contains("mac");
+        var processBuilder = new ProcessBuilder((!mac ? "\"" : "") + frame.getExeFile().getAbsolutePath() + (!mac ? "\"" : ""), "--input", "\"" + file.getParent() + "\"", "--name", "\"" + frame.getNameField().getText() + "\"", "--type", (String) frame.getImageBox().getSelectedItem(), "--app-version", "\"" + frame.getVersionField().getText() + "\"", "--copyright", "\"" + frame.getCopyrightField().getText() + "\"", "--vendor", "\"" + frame.getVendorField().getText() + "\"" + (frame.getIconBox().isSelected() ? " --icon " + "\"" + frame.getIconFile().getAbsolutePath() + "\"" : ""), "--main-jar", "\"" + file.getAbsolutePath() + "\"", "--main-class", "\"" + frame.getMainClassField().getText() + "\"", (System.getProperty("os.name").toLowerCase().contains("win") ? "--win-menu" : ""));
+        var stringBuilder = new StringBuilder();
+        processBuilder.command().forEach(s -> stringBuilder.append(s).append(" "));
+        System.out.println(stringBuilder);
         System.out.println();
+        if (mac) {
+            var selection = new StringSelection(stringBuilder.toString());
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
+            JOptionPane.showMessageDialog(frame, "Copied to system clipboard!", "Copied command", JOptionPane.INFORMATION_MESSAGE);
+            System.exit(0);
+        }
         processBuilder.redirectErrorStream(true);
         processBuilder.directory(file.getParentFile());
         try {
